@@ -1,132 +1,83 @@
 #include "sort.h"
-#include <stdlib.h>
-#include <stdio.h>
 
 /**
- * print_left_right - print left and right partitions
- * @array: array
- * @size: size of second array
- * @first: initial position
- * @mid: middle position
- */
-void print_left_right(int *array, int size, int first, int mid)
+* print_elements - prints elements in array in given format
+* @array: the array to be printed
+* @size: the size of the array
+*/
+void print_elements(int *array, size_t size)
 {
-	int k;
+	size_t i = 0;
 
+	while (i < size - 1)
+		printf("%i, ", array[i]), i += 1;
+	printf("%i\n", array[i]);
+}
+
+/**
+* merge_sort_rec - a recursive merging algorithm
+* one working array is utilized
+* and most of the calculation (the dividing) is done
+* on the actual array
+* @array: the array to be sorted
+* @working_array: an array of equal size to array for
+* temp work.
+* @size: size of the arrays
+* Return: the size of the array sorted
+*/
+size_t merge_sort_rec(int *array, int *working_array, size_t size)
+{
+	size_t left, right;
+	size_t i = 0, j = 0, k = 0;
+	size_t half = (size_t)(size / 2);
+
+	if (size <= 1)
+		return (size);
+
+	/*sort each half*/
+	left = merge_sort_rec(array, working_array, half);
+	right = merge_sort_rec(array + half, working_array + half, size - half);
+
+	/*merge each half*/
 	printf("Merging...\n");
 	printf("[left]: ");
-	k = first;
-	while (k < mid)
-	{
-		if (k != mid - 1)
-			printf("%d, ", array[k]);
-		else
-			printf("%d\n", array[k]);
-		k++;
-	}
-
+	print_elements(array, left);
 	printf("[right]: ");
-	k = mid;
-	while (k < size)
+	print_elements(array + left, right);
+
+	for (k = i, j = left; i < left && j < left + right; k++)
 	{
-		if (k < size - 1)
-			printf("%d, ", array[k]);
+		if (array[i] > array[j])
+			working_array[k] = array[j], j += 1;
 		else
-			printf("%d\n", array[k]);
-		k++;
+			working_array[k] = array[i], i += 1;
 	}
-}
+	for ( ; i < left; i++, k++)
+		working_array[k] = array[i];
 
-/**
- * merge - merge the values in the position of array
- * @array: first array
- * @size: size of second array
- * @cpy: copy of array
- * @first: initial position
- * @mid: middle position
- * first one of the second array
- */
-void merge(int *array, int size, int first, int mid, int *cpy)
-{
-	int i, j, k;
+	for ( ; j < left + right; j++, k++)
+		working_array[k] = array[j];
 
-	print_left_right(array, size, first, mid);
-
-	i = first;
-	j = mid;
-
+	/*copy the changes back to the main array*/
+	for (k = 0; k < right + left; k++)
+		array[k] = working_array[k];
 	printf("[Done]: ");
-	k = first;
-	while (k < size)
-	{
-		if (i < mid && (j >= size || array[i] <= array[j]))
-		{
-			cpy[k] = array[i];
-			i++;
-		}
-		else
-		{
-			cpy[k] = array[j];
-			j++;
-		}
-		if (k < size - 1)
-			printf("%d, ", cpy[k]);
-		else
-			printf("%d\n", cpy[k]);
-		k++;
-	}
-}
-/**
- * mergeSort - array separator
- * @cpy: copy of array
- * @first: initial position
- * @size: size of the original  array
- * @array: the original array
- */
-void mergeSort(int *cpy, int first, int size, int *array)
-{
-	int mid;
-
-	if (size - first < 2)
-		return;
-
-	mid = (size + first) / 2;
-
-	mergeSort(array, first, mid, cpy);
-	mergeSort(array, mid, size, cpy);
-
-	merge(cpy, size, first, mid, array);
-}
-/**
- * copy_array - copy array of int
- * @arr: array src
- * @cpy: array dest
- * @size : array size
- */
-void copy_array(int *arr, int *cpy, int size)
-{
-	int i;
-
-	for (i = 0; i < (int)size; i++)
-		cpy[i] = arr[i];
+	print_elements(array, right + left);
+	return (left + right);
 }
 
 /**
- * merge_sort - create partition and copy
- * @array: array
- * @size : array size
- */
+* merge_sort - an implementation of merge sort algorithm
+* @array: the array to be sorted
+* @size: the size of the array
+*/
 void merge_sort(int *array, size_t size)
 {
-	int *cpy;
+	int *work_ar = malloc(sizeof(int) * size);
 
-	cpy = malloc(sizeof(int) * size - 1);
-
-	if (cpy == NULL)
+	if (!work_ar)
 		return;
 
-	copy_array(array, cpy, size);
-
-	mergeSort(cpy, 0, size, array);
-	free(cpy);
+	merge_sort_rec(array, work_ar, size);
+	free(work_ar);
 }

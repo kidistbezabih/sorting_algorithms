@@ -1,59 +1,55 @@
 #include "sort.h"
-#include <stdlib.h>
 
 /**
- * arr_max - array max
- * @array: array
- * @size: size of the array
- * Return: max
+ * maxof - returns maximum element in array
+ * @array: the array
+ * @size: the size of the array
+ * Return: the maximum integer
  */
-int arr_max(int *array, size_t size)
+int maxof(int *array, size_t size)
 {
+	int i;
 	int max;
-	size_t i;
 
+	if (size < 1)
+		return (size);
 	max = array[0];
-	for (i = 1; i < size; i++)
-		if (array[i] > max)
+
+	for (i = 0; (int)i < (int)size; i++)
+		if (max < array[i])
 			max = array[i];
 	return (max);
 }
-
 /**
- * counting_sort - sorts an array with the Counting sort algorithm
- * @array: array to sort
- * @size: size of the array
+ * counting_sort - an implementation of counting sort
+ * @array: the arrray to be sorted
+ * @size: the size of the array
  */
 void counting_sort(int *array, size_t size)
 {
-	int *arr, *o_arr, max, num;
-	size_t i;
 
-	if (size < 2 || !array)
+	size_t i = 0, sum = 0;
+	size_t max = (size_t)maxof(array, size);
+	int *count;
+
+	if (!array || size <= 1)
 		return;
-	max = arr_max(array, size);
+	count = malloc(sizeof(int) * (max + 1 + size));
+	if (!count)
+		return;
 
-	arr = malloc(sizeof(size_t) * (max + 1));
-	o_arr = malloc(sizeof(int) * size);
+	for (i = 0; (int)i < (int)max + 1; i++)
+		count[i] = 0;
+	for (i = 0; (int)i < (int)size; i++)
+		count[array[i] - 1] += 1;
+	for (i = 0; (int)i < (int)max + 1; i++)
+		sum += count[i], count[i] = sum;
+	for (i = 0; (int)i < (int)size; i++)
+		count[max + count[array[i] - 1]] = array[i], count[array[i] - 1] -= 1;
 
-	for (i = 0; (int)i <= max; i++)
-		arr[i] = 0;
-	for (i = 0; i < size; i++)
-	{
-		num = array[i];
-		arr[num] += 1;
-	}
-	for (i = 1; (int)i <= max; i++)
-		arr[i] += arr[i - 1];
-	print_array(arr, max + 1);
-	for (i = 0; i < size; i++)
-	{
-		o_arr[arr[array[i]] - 1] = array[i];
-		arr[array[i]]--;
-	}
-	for (i = 0; i < size; i++)
-		array[i] = o_arr[i];
-
-	free(o_arr);
-	free(arr);
+	/*copy element back to array*/
+	for (i = 0; (int)i < (int)size; i++)
+		array[i] = count[max + 1 + i];
+	print_array(count, max + 1);
+	free(count);
 }

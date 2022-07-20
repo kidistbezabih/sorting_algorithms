@@ -1,68 +1,72 @@
 #include "sort.h"
 
+
 /**
- * partition_h - array partition
- * @array: array to sort
- * @first: first position
- * @last: last position
- * @size: array size
- * Return: int pivot index
+ * swapnprint - swaps 2 integers in an array and prints the array
+ * @a: first number
+ * @b: second number
+ * @array: the arry to be printed
+ * @size: size of the array
  */
-int partition_h(int *array, int first, int last, size_t size)
+void swapnprint(int *a, int *b, int *array, size_t size)
 {
-	int pivot = array[last], i = first - 1, j = last + 1, aux;
+	int tmp = *a;
 
-	while (1)
-	{
-		do {
-			i++;
-		} while (array[i] < pivot);
-
-		do {
-			j--;
-		} while (array[j] > pivot);
-
-		if (j < i)
-			return (j);
-		if (array[i] > array[j])
-		{
-			aux = array[i];
-			array[i] = array[j];
-			array[j] = aux;
-			print_array(array, size);
-		}
-	}
+	*a = *b;
+	*b = tmp;
+	print_array(array, size);
 }
 
 /**
- * qsh - sorts an array of integers recursively
- * @array: array to sort
- * @first: first position
- * @last: last position
- * @size: array size
+ * quick_sort_rec - a recursive implementation of the quick sort algorithm
+ * with the hoare scheme in mind
+ * @array: the array to be sorted
+ * @size: the length of the array
+ * @beg: the start of the usnorted subset of the array from the left
+ *    [1,2,4,3,7,6,8] in this case index 2
+ * @end: the begning of the unsorted subset of the array from the right
  */
-void qsh(int *array, int first, int last, size_t size)
+void quick_sort_rec(int *array, size_t size, size_t beg, size_t end)
 {
-	int pivot;
+	size_t l = beg, r = end;
 
-	if (first < last)
+	if (end <= beg || size <= 1 || !array)
+		return;
+	if (end == beg + 1)
 	{
-		pivot = partition_h(array, first, last, size);
-		qsh(array, first, pivot, size);
-		qsh(array, pivot + 1, last, size);
+		if (array[beg] > array[end])
+			swapnprint(array + beg, array + end, array, size);
+		return;
 	}
+
+	while (l < r)
+	{
+		while (array[l] <= array[r] && l < r)
+			l++;
+		if (l >= r)
+			break;
+		swapnprint(array + l, array + r, array, size);
+		while (array[r] > array[l] && r > l)
+			r--;
+		if (r <= l)
+			break;
+		swapnprint(array + r, array + l, array, size);
+	}
+	if (l > beg)
+		if (l - 1 > beg)
+			quick_sort_rec(array, size, beg, l - 1);
+	if (end > l + 1)
+		quick_sort_rec(array, size, l + 1, end);
 }
 
 /**
- * quick_sort_hoare - sorts an array of integers using the Quick
- * sort hoare algorithm  in ascending order
- * @array: array to sort
- * @size: array size
- */
+* quick_sort_hoare - implentation of the quick sort  algorithhm
+* with the Hoare scheme
+* @array: the array to be sorted
+* @size: the size of the array
+*
+*/
 void quick_sort_hoare(int *array, size_t size)
 {
-	if (!array || size < 2)
-		return;
-
-	qsh(array, 0, size - 1, size);
+	quick_sort_rec(array, size, 0, size - 1);
 }

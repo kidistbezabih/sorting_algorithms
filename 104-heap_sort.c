@@ -1,57 +1,102 @@
-#include <stdint.h>
 #include "sort.h"
-#define getParent(i) (((i) - 1) / 2)
-#define getLeft(i) (2 * (i) + 1)
-#define getRight(i) (2 * (i) + 2)
+
+
 /**
- * sift_down - sift_down
- * @array: array containing heap
- * @size: total size of array
- * @index: index of index node of heap
- * @nth: index of nth node in heap to examine
+ * swapnprint - swaps two integers and prints the array
+ * @a: first number
+ * @b: second number
+ * @array: the arry to be printed
+ * @size: size of the array
  */
-void sift_down(int *array, size_t size, size_t index, size_t nth)
+void swapnprint(int *a, int *b, int *array, size_t size)
 {
-size_t largest, left, right;
-do {
-left = getLeft(index);
-right = getRight(index);
-largest = index;
-if (right <= nth && array[right] > array[index])
-largest = right;
-if (array[left] > array[largest])
-largest = left;
-if (index == largest)
-return;
-array[index] ^= array[largest];
-array[largest] ^= array[index];
-array[index] ^= array[largest];
-print_array(array, size);
-index = largest;
-} while (getLeft(index) <= nth);
+	int tmp = *a;
+
+	*a = *b;
+	*b = tmp;
+	print_array(array, size);
 }
+
+
 /**
- * heap_sort - use heap sort
- * @array: array to sort
- * @size: size of array
+ * shiftDown - fix's part of a heap trea to be correct
+ * @parent: the parent of the sub heap
+ * @end: the last index upto which the heap will be fixed
+ * @array: the array containing the subset to be fixed
+ * @size: full size of the array
+ */
+void shiftDown(int *array, size_t parent, size_t end, size_t size)
+{
+	size_t lchild = parent * 2 + 1, rchild;
+	size_t swap_with = parent;
+
+	while (lchild < end)
+	{
+
+		if (array[lchild] > array[swap_with])
+			swap_with = lchild;
+
+		rchild = lchild + 1;
+		if (rchild < end && array[rchild] > array[swap_with])
+			swap_with = rchild;
+
+		/*if swap_with didnt change the node is already ok*/
+		if (parent == swap_with)
+			return;
+		/*other wise swap and fix the children*/
+		else
+		{
+			swapnprint(array + parent, array + swap_with, array, size);
+			parent = swap_with;
+			lchild = parent * 2 + 1;
+		}
+	}
+
+
+}
+
+
+
+/**
+ * buildMaxHeap - builds a max heap
+ * @array: the array to be changed into a heap
+ * @size: the size of the array
+ */
+void buildMaxHeap(int *array, size_t size)
+{
+	size_t parent = size - 1;
+	size_t root = 0;
+
+	while (parent + 1 > root)
+	{
+		shiftDown(array, parent, size, size);
+		if (!parent)
+			break;
+		parent--;
+	}
+
+}
+
+/**
+ * heap_sort - an implementaion of the heap_sort algorithm
+ * @array: the array to be sorted
+ * @size: the size of the array
  */
 void heap_sort(int *array, size_t size)
 {
-size_t node, sorted;
-if (array == NULL || size < 2)
-return;
-for (node = getParent(size - 1); node != SIZE_MAX; node--)
-sift_down(array, size, node, size - 1);
-for (sorted = size - 1; sorted > 1; sorted--)
-{
-array[0] ^= array[sorted];
-array[sorted] ^= array[0];
-array[0] ^= array[sorted];
-print_array(array, size);
-sift_down(array, size, 0, sorted - 1);
-}
-array[0] ^= array[1];
-array[1] ^= array[0];
-array[0] ^= array[1];
-print_array(array, size);
+	size_t end = size - 1;
+	size_t root = 0;
+
+	if (size <= 1)
+		return;
+
+	buildMaxHeap(array, size);
+
+	while (end > root)
+	{
+		swapnprint(array + root, array + end, array, size);
+		shiftDown(array, root, end, size);
+		end--;
+	}
+
 }

@@ -1,26 +1,64 @@
 #include "sort.h"
 
+
 /**
- * shell_sort - Shell sort - Knuth Sequence
- * @array: array to sort
- * @size: size of array
+ * swap - swaps two integers in an array
+ * @a: first number
+ * @b: second number
+ */
+void swap(int *a, int *b)
+{
+	int tmp = *a;
+
+	*a = *b;
+	*b = tmp;
+}
+
+/**
+ * shell_sort - an implementation of shell sort with the
+ * knuth
+ * @array: the array to be sorted
+ * @size: the size of the array
  */
 void shell_sort(int *array, size_t size)
 {
-	int gap = 1, i, j, tmp;
+	int k, z;
+	size_t gap = 1, i, j;
 
-	while (gap < ((int)(size)))
-		gap = (3 * gap) + 1;
-	for (gap = (gap - 1) / 3; gap > 0; gap = (gap - 1) / 3)
+	if (size <= 1 || !array)
+		return;
+	/*find the maximum amount of divider*/
+	while (gap <= size)
+		gap = gap * 3 + 1;/*knuth sequence*/
+
+	while (gap > 0)
 	{
-		for (i = gap; i < (int)size; i += 1)
+		gap = (gap - 1) / 3;/*knuth sequence*/
+		if (gap < 1)
+			break;
+		/*find and sort all the elments with the @gap intevral*/
+		j = 0;
+		while (j < gap)
 		{
-			tmp = array[i];
-
-			for (j = i; j >= gap && array[j - gap] > tmp; j -= gap)
-				array[j] = array[j - gap];
-
-			array[j] = tmp;
+			i = j;
+			while (i < size)
+			{
+				k = i - gap, z = i;
+				/*
+				 * take current element and put it in its right place in
+				 * the subgroup
+				 */
+				while (k >= 0)
+				{
+					if (array[z] > array[k])
+						break;
+					swap(array + z, array + k);
+					z = k;
+					k -= gap;
+				}
+				i += gap;
+			}
+			j++;
 		}
 		print_array(array, size);
 	}
